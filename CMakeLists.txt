@@ -188,3 +188,32 @@ if (BENCHMARK_ENABLE_TESTING)
   enable_testing()
   add_subdirectory(test)
 endif()
+
+# Find Package
+set(INSTALL_LIB_DIR lib CACHE PATH "Installation directory for libraries")
+set(INSTALL_BIN_DIR bin CACHE PATH "Installation directory for executables")
+set(INSTALL_INCLUDE_DIR include CACHE PATH "Installation directory for header files")
+set(DEF_INSTALL_CMAKE_DIR lib/CMake/benchmark)
+
+foreach(p LIB BIN INCLUDE CMAKE)
+  set(var INSTALL_${p}_DIR)
+  if(NOT IS_ABSOLUTE "${${var}}")
+    set(${var} "${CMAKE_INSTALL_PREFIX}/${${var}}")
+  endif()
+endforeach()
+
+export(TARGETS benchmark
+  FILE "${PROJECT_BINARY_DIR}/benchmarkTargets.cmake")
+
+export(PACKAGE benchmark)
+
+file(RELATIVE_PATH REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}"
+   "${INSTALL_INCLUDE_DIR}")
+
+set(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include/benchmark")
+
+configure_file(cmake/benchmarkConfig.cmake.in
+  "${PROJECT_BINARY_DIR}/benchmarkConfig.cmake" @ONLY)
+
+configure_file(cmake/benchmarkConfigVersion.cmake.in
+  "${PROJECT_BINARY_DIR}/benchmarkConfigVersion.cmake" @ONLY)
